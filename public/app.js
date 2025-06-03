@@ -73,7 +73,9 @@ async function send() {
 
 function addMessage(roomName, message) {
   const window = document.getElementById(roomName)
-  window.append(createMessageDiv(message))
+  const messageDiv = createMessageDiv(message)
+  window.append(messageDiv)
+  messageDiv.scrollIntoView()
 }
 
 setInterval(async () => {
