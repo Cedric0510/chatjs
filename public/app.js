@@ -15,16 +15,16 @@ function htmlToElem(html) {
 
 function createRoomTab(room, active = false) {
   return htmlToElem(`
-    <label id="${room.name}_tab" class="tab" data-news="0">
-      <input onchange="changeRoom('${room.name}')" type="radio" name="tab" value="${room.name}" checked="${active}" /> 
-      ${room.name}
+    <label id="${DOMPurify.sanitize(room.name)}_tab" class="tab" data-news="0">
+      <input onchange="changeRoom('${DOMPurify.sanitize(room.name)}')" type="radio" name="tab" value="${DOMPurify.sanitize(room.name)}" checked="${active}" /> 
+      ${DOMPurify.sanitize(room.name)}
     </label>`)
 }
 
 function createRoomWindow(room, active = true) {
   return htmlToElem(`
-    <div id="${room.name}" class="window">
-      <input id="${room.name}_input" type="radio" name="window" value="${room.name}" checked="${active}" />
+    <div id="${DOMPurify.sanitize(room.name)}" class="window">
+      <input id="${DOMPurify.sanitize(room.name)}_input" type="radio" name="window" value="${DOMPurify.sanitize(room.name)}" checked="${active}" />
     </div>`)
 }
 
@@ -32,11 +32,11 @@ function createMessageDiv(message) {
   return htmlToElem(`
     <div class="message ${message.author == user ? 'mine' : ''}">
       <div class="header">
-        <span class="author">${message.author}</span>
+        <span class="author">${DOMPurify.sanitize(message.author)}</span>
         <span class="date">${new Date(message.date).toLocaleString()}</span>
       </div>
       <div class="main">
-        ${message.text}
+       ${DOMPurify.sanitize(message.text)}
       </div>
     </div>`)
 }
