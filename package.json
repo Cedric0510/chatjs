@@ -1,0 +1,22 @@
+{
+  "name": "nodeframework",
+  "version": "1.0.0",
+  "description": "A Node skeletton",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --env-file=.env.dev src/index.js",
+    "start": "node --env-file=.env.prod src/index.ts"
+  },
+  "author": "Florent Descroix",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.1",
+    "tsx": "^4.19.3"
+  }
+}

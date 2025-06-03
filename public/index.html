@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="api.js"></script>
+  <link rel="stylesheet" href="style.css">
+  </link>
+</head>
+
+<body>
+
+  <header>
+    <h3 id="title"></h3>
+  </header>
+
+  <aside id="left">
+    <h3>Salons</h3>
+    <div id="tabs"></div>
+    <label onclick="joinRoom()">Rejoindre un salon</label>
+  </aside>
+
+  <aside id="right">
+    <h3>Utilisateur·ices</h3>
+    <div id="users"></div>
+  </aside>
+
+  <main id="main"></main>
+
+  <footer id="footer">
+    <button id="bigger" onclick="this.parentElement.classList.toggle('big')"></button>
+    <textarea id="input" onkeydown="if (event.code == 'Enter') send()"></textarea>
+    <button onclick="send()">Envoyer</button>
+  </footer>
+</body>
+
+<script src="app.js"></script>
+
+</html>
