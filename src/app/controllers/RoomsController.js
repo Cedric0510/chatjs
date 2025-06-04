@@ -1,40 +1,52 @@
-import Room from "../models/Room.js";
-import Message from '../models/Message.js';
+import Room from '../models/Room.js'; 
 
 export default class RoomsController {
-    static readAll(req, res) {
-        res.json(Object.keys(Room.allRooms));
-    }
-
-    static create(req, res) {
-        const room = new Room(req.body.name);
-        Room.allRooms[req.body.name] = room;
-        res.json(room);
-    }
-
-    static readOne(req, res) {
-        const room = Room.allRooms[req.params.id];
-        res.json({
-            name: room?.name,
-            messages: room?.getMessages()
-        });
-    }
-
-    static addMessage(req, res) {
-        if (Room.allRooms[req.params.id]) {
-            const message = new Message(req.body.author, req.body.text, req.params.id);
-            const room = Room.allRooms[req.params.id];
-            Message.allMessages.push(message);
-            room.messages.push(Message.allMessages.length - 1);
-            res.json(message);
+    
+    static async readAll(req, res) {
+        try {
+            const rooms = await Room.findAll(); 
+            const roomNames = rooms.map(room => room.name); 
+            res.json(roomNames);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
         }
-        else {
-            res.json(false);
+    }
+
+    static async create(req, res) {
+        try {
+            const room = await Room.create({ name: req.body.name }); 
+            res.json(room);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
         }
+    }
+
+    static async readOne(req, res) {
+        try {
+            const room = await Room.findOne({ where: { name: req.params.id } }); 
+            if (!room) {
+                return res.status(404).json({ error: 'Room not found' });
+            }
+            res.json({
+                name: room.name,
+                messages: [] 
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async addMessage(req, res) {
+        // plus tard
+        res.json({ message: 'Not implemented yet' });
     }
     
-    static delete(req, res) {
-        Room.allRooms[req.params.id] = undefined;
-        res.json(true);
+    static async delete(req, res) {
+        try {
+            await Room.destroy({ where: { name: req.params.id } }); 
+            res.json(true);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
 }

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../../config/database.js';
 
-const Room = sequelize.define('Room', { //création de la table
+const User = sequelize.define('User', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -12,9 +12,10 @@ const Room = sequelize.define('Room', { //création de la table
     allowNull: false,
     unique: true 
   },
-  participants: {
-    type: DataTypes.JSON,
-    defaultValue: [] 
-}})
+  password: {
+    type: DataTypes.STRING,
+    defaultValue: ''
+  }
+});
 
-export default Room;
+export default User;

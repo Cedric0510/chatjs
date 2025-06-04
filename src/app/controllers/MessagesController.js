@@ -1,18 +1,14 @@
-import Message from "../models/Message.js";
-
 export default class MessagesController {
-
-    static readOne(req, res) {
-        res.json(Message.allMessages[req.params.id]);
+    
+    static async readOne(req, res) {
+        res.json({ message: "TODO: implement with Sequelize" });
     }
 
-    static update(req, res) {
-        Message.allMessages[req.params.id].setText(req.body.text);
-        res.json(Message.allMessages[req.params.id]);
+    static async update(req, res) {
+        res.json({ message: "TODO: implement with Sequelize" });
     }
 
-    static delete(req, res) {
-        Message.allMessages[req.params.id] = undefined;
-        res.json(true);
+    static async delete(req, res) {
+        res.json({ message: "TODO: implement with Sequelize" });
     }
 }
