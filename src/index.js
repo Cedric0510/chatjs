@@ -1,5 +1,6 @@
 import express from 'express';
 import routes from './app/routes/index.js';
+import sequelize from '../config/database.js'; 
 
 const app = express();
 
@@ -9,6 +10,17 @@ app.use('/api', routes);
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-    console.log("Listening on port : " + process.env.PORT);
-});
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ BDD connectée');
+    
+    app.listen(port, () => {
+      console.log("Listening on port : " + port);
+    });
+  } catch (error) {
+    console.error('❌ Erreur BDD:', error);
+  }
+}
+
+startServer(); 
