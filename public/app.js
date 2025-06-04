@@ -8,24 +8,21 @@ const main = document.getElementById('main')
 const input = document.getElementById('input')
 
 
-// Fonction init() modifiée
 async function init() {
   try {
     const userName = prompt('Qui êtes vous ?')
     if (!userName) return;
     
-    // Créer utilisateur en BDD
+  
     currentUser = await api.createUser(userName);
     console.log('Utilisateur:', currentUser);
-    
-    // NOUVEAU : Charger les salles existantes
+
     await loadExistingRooms();
   } catch (error) {
     console.error('Erreur init:', error);
   }
 }
 
-// NOUVELLE fonction pour charger les salles
 async function loadExistingRooms() {
   try {
     const roomNames = await api.getRooms(); 
