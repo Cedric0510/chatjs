@@ -19,22 +19,31 @@ class API {
   }
 
   async getRooms() {
-    return GET(`${this.url}/rooms`)
+    return await GET(`${this.url}/rooms`)
   }
 
   async getRoom(id) {
-    return GET(`${this.url}/rooms/${id}`)
+    return await GET(`${this.url}/rooms/${id}`)
   }
 
   async createRoom(name) {
-    return POST(`${this.url}/rooms`, { name })
+    return await POST(`${this.url}/rooms`, { name })
   }
 
-  async sendMessage(roomId, message) {
-    return POST(`${this.url}/rooms/${roomId}`, message)
+
+  async createUser(name) {
+    return await POST(`${this.url}/users`, { name })
   }
 
-  async getLastMessages(roomId, lastId) {
-    return GET(`${this.url}/rooms/${roomId}?from=${lastId}`)
+  async sendMessage(messageData) {
+    return await POST(`${this.url}/messages`, messageData)
+  }
+
+  async getUser(id) {
+    return await GET(`${this.url}/users/${id}`)
+  }
+
+  async getUsers() {
+    return await GET(`${this.url}/users`)
   }
 }

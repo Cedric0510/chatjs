@@ -39,6 +39,7 @@ export default class RoomsController {
             }
             
             res.json({
+                id: room.id, 
                 name: room.name,
                 messages: room.messages || []
             });

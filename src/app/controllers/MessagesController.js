@@ -19,6 +19,7 @@ export default class MessagesController {
             
             res.json(message);
         } catch (error) {
+            console.error('❌ MessagesController.readOne:', error.message);
             res.status(500).json({ error: error.message });
         }
     }
@@ -26,6 +27,7 @@ export default class MessagesController {
     static async create(req, res) {
         try {
             const { text, userId, roomId } = req.body;
+             console.log('🔍 Tentative création message:', { text, userId, roomId });
             
             const message = await Message.create({
                 text,
@@ -36,6 +38,7 @@ export default class MessagesController {
             console.log(`Nouveau message dans room ${roomId}`);
             res.json(message);
         } catch (error) {
+            console.error('❌ MessagesController.create ERROR:', error);
             res.status(500).json({ error: error.message });
         }
     }
@@ -51,6 +54,7 @@ export default class MessagesController {
             
             res.json({ message: 'Message updated' });
         } catch (error) {
+            console.error('❌ MessagesController.update:', error.message);
             res.status(500).json({ error: error.message });
         }
     }
@@ -60,6 +64,7 @@ export default class MessagesController {
             await Message.destroy({ where: { id: req.params.id } });
             res.json({ message: 'Message deleted' });
         } catch (error) {
+             console.error('❌ MessagesController.delete:', error.message);
             res.status(500).json({ error: error.message });
         }
     }

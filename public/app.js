@@ -8,6 +8,7 @@ const main = document.getElementById('main')
 const input = document.getElementById('input')
 
 
+// Fonction init() modifiée
 async function init() {
   try {
     const userName = prompt('Qui êtes vous ?')
@@ -15,9 +16,34 @@ async function init() {
     
     // Créer utilisateur en BDD
     currentUser = await api.createUser(userName);
-    console.log('👤 Utilisateur:', currentUser);
+    console.log('Utilisateur:', currentUser);
+    
+    // NOUVEAU : Charger les salles existantes
+    await loadExistingRooms();
   } catch (error) {
-    console.error('❌ Erreur init:', error);
+    console.error('Erreur init:', error);
+  }
+}
+
+// NOUVELLE fonction pour charger les salles
+async function loadExistingRooms() {
+  try {
+    const roomNames = await api.getRooms(); 
+    console.log('Salles existantes:', roomNames);
+    
+    for (const roomName of roomNames) {
+      const room = await api.getRoom(roomName);
+      if (room && !document.getElementById(roomName)) {
+        tabs.append(createRoomTab(room));
+        main.append(createRoomWindow(room));
+        
+        for (const msg of room.messages || []) {
+          addMessage(roomName, msg);
+        }
+      }
+    }
+  } catch (error) {
+    console.error(' Erreur load rooms:', error);
   }
 }
 
@@ -44,7 +70,7 @@ function createRoomWindow(room, active = true) {
 }
 
 function createMessageDiv(message) {
-  const authorName = message.author?.name || message.author; // Compatibilité
+  const authorName = message.author?.name || message.author; 
   return htmlToElem(`
     <div class="message ${authorName == currentUser?.name ? 'mine' : ''}">
       <div class="header">
