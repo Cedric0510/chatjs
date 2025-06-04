@@ -46,4 +46,13 @@ class API {
   async getUsers() {
     return await GET(`${this.url}/users`)
   }
+
+    async joinRoom(roomName, userId) {
+    return await POST(`${this.url}/rooms/${roomName}/join`, { userId })
+  }
+
+    async getMyRooms(userId) {
+    return await GET(`${this.url}/users/${userId}/rooms`)
+  }
+
 }

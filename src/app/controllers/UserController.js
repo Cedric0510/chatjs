@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import Room from '../models/Room.js';
 
 export default class UserController {
     
@@ -27,7 +28,7 @@ export default class UserController {
         try {
             const { name } = req.body;
             const user = await User.create({ name });
-            console.log(`👤 Nouvel utilisateur: ${name}`);
+            console.log(` Nouvel utilisateur: ${name}`);
             res.json(user);
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -39,6 +40,32 @@ export default class UserController {
             await User.destroy({ where: { id: req.params.id } });
             res.json({ message: 'User deleted' });
         } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async getMyRooms(req, res) {
+        try {
+            const userId = req.params.id;
+            
+            const user = await User.findByPk(userId, {
+                include: [{
+                    model: Room,
+                    as: 'joinedRooms'
+                }]
+            });
+            
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            
+            const roomNames = user.joinedRooms.map(room => room.name);
+            
+            console.log(`Salles de ${user.name}:`, roomNames);
+            res.json(roomNames);
+            
+        } catch (error) {
+            console.error('UserController.getMyRooms:', error.message);
             res.status(500).json({ error: error.message });
         }
     }
