@@ -19,22 +19,50 @@ class API {
   }
 
   async getRooms() {
-    return GET(`${this.url}/rooms`)
+    return await GET(`${this.url}/rooms`)
   }
 
   async getRoom(id) {
-    return GET(`${this.url}/rooms/${id}`)
+    return await GET(`${this.url}/rooms/${id}`)
   }
 
   async createRoom(name) {
-    return POST(`${this.url}/rooms`, { name })
+    return await POST(`${this.url}/rooms`, { name })
   }
 
-  async sendMessage(roomId, message) {
-    return POST(`${this.url}/rooms/${roomId}`, message)
+  async joinRoom(roomName, userId) {
+    return await POST(`${this.url}/rooms/${roomName}/join`, { userId })
   }
 
-  async getLastMessages(roomId, lastId) {
-    return GET(`${this.url}/rooms/${roomId}?from=${lastId}`)
+  async enterRoom(roomName, userName) {
+    return await POST(`${this.url}/rooms/${roomName}/enter`, { userName })
+  }
+
+  async leaveRoom(userName) {
+    return await POST(`${this.url}/rooms/dummy/leave`, { userName })
+  }
+
+  async getRoomUsers(roomName) {
+    return await GET(`${this.url}/rooms/${roomName}/users`)
+  }
+
+  async loginOrCreateUser(name) {
+    return await POST(`${this.url}/users/login`, { name })
+  }
+
+  async sendMessage(messageData) {
+    return await POST(`${this.url}/messages`, messageData)
+  }
+
+  async getUser(id) {
+    return await GET(`${this.url}/users/${id}`)
+  }
+
+  async getUsers() {
+    return await GET(`${this.url}/users`)
+  }
+
+  async getMyRooms(userId) {
+    return await GET(`${this.url}/users/${userId}/rooms`)
   }
 }

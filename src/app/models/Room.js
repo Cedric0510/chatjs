@@ -1,17 +1,17 @@
-import Message from "./Message.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../../../config/database.js';
 
-class Room {
-  
-    static allRooms = {}
-
-    constructor(name) {
-        this.messages = [];
-        this.name = name;
+const Room = sequelize.define('Room', { //création de la table
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
     }
-
-    getMessages() {
-        return this.messages.map(id => Message.allMessages[id]);
-    }
-}
+});
 
 export default Room;

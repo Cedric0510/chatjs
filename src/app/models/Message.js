@@ -1,19 +1,28 @@
-class Message {
+import { DataTypes } from 'sequelize';
+import sequelize from '../../../config/database.js';
 
-    static allMessages = []
-
-    constructor(author, text, room) {
-        this.text = text;
-        this.author = author;
-        this.date = new Date();
-        this.updated = this.date;
-        this.room = room;
-    }
-    
-    setText(text) {
-        this.text = text;
-        this.updated = new Date();
-    }
-}
+const Message = sequelize.define('Message', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true 
+  },
+  text: {
+    type: DataTypes.TEXT,
+    allowNull: false 
+  },
+  date: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW 
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false 
+  },
+  roomId: {
+    type: DataTypes.INTEGER,
+    allowNull: false 
+  }
+});
 
 export default Message;
