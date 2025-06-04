@@ -9,5 +9,8 @@ router.post("/", (req, res) => RoomsController.create(req, res));
 router.post("/:id", (req, res) => RoomsController.addMessage(req, res));
 router.delete("/:id", (req, res) => RoomsController.delete(req, res));
 router.post("/:id/join", (req, res) => RoomsController.joinRoom(req, res));
+router.post("/:id/enter", (req, res) => RoomsController.enterRoom(req, res));
+router.post("/:id/leave", (req, res) => RoomsController.leaveRoom(req, res)); 
+router.get("/:id/users", (req, res) => RoomsController.getRoomUsers(req, res)); 
 
 export default router;

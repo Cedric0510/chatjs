@@ -1,48 +1,52 @@
 const api = new API('/api')
 
 let currentUser = null;
+let currentRoom = null; // Nouvelle variable
 
 const title = document.getElementById('title')
 const tabs = document.getElementById('tabs')
 const main = document.getElementById('main')
 const input = document.getElementById('input')
+const users = document.getElementById('users') 
 
 async function init() {
   try {
     const userName = prompt('Qui êtes vous ?')
     if (!userName) return;
     
-    console.log('DEBUG - userName saisi:', userName); 
-    
     currentUser = await api.loginOrCreateUser(userName);
-    console.log('DEBUG - currentUser après API:', currentUser); 
+    console.log('Utilisateur connecté:', currentUser);
     
     if (currentUser && currentUser.id) {
-      console.log('DEBUG - Chargement des salles pour user ID:', currentUser.id); 
       await loadMyRooms();
-    } else {
-      console.log('ERROR - currentUser.id non défini'); 
     }
   } catch (error) {
-    console.error('ERROR init:', error);
+    console.error('Erreur init:', error);
   }
 }
 
 async function loadMyRooms() {
   try {
+    if (!currentUser || !currentUser.id) {
+      return;
+    }
+    
     const roomNames = await api.getMyRooms(currentUser.id);
-    console.log('Mes salles:', roomNames);
-
+    
     for (const roomName of roomNames) {
       const room = await api.getRoom(roomName);
       if (room && !document.getElementById(roomName)) {
         tabs.append(createRoomTab(room));
         main.append(createRoomWindow(room));
-
+        
         for (const msg of room.messages || []) {
-          addMessage(roomName, msg);4
+          addMessage(roomName, msg);
         }
       }
+    }
+    
+    if (roomNames.length > 0) {
+      await changeRoom(roomNames[0]);
     }
   } catch (error) {
     console.error('Erreur load my rooms:', error);
@@ -85,34 +89,36 @@ function createMessageDiv(message) {
     </div>`)
 }
 
-function changeRoom(roomName) {
-  document.getElementById(`${roomName}_input`).checked = true
-  title.innerText = roomName
+async function changeRoom(roomName) {
+  try {
+    document.getElementById(`${roomName}_input`).checked = true
+    title.innerText = roomName
+    
+    await api.enterRoom(roomName, currentUser.name);
+    currentRoom = roomName;
+    
+    await loadRoomUsers(roomName);
+    
+  } catch (error) {
+    console.error('Erreur changeRoom:', error);
+  }
 }
 
 async function joinRoom() {
-  console.log('NOUVELLE FONCTION joinRoom() appelée !'); 
-  
-    if (!currentUser) {
-    alert('Veuillez attendre que la connexion soit terminée');
-    return;
-  }
   const name = prompt("Indiquez le nom de la salle")
   if (name && !document.getElementById(name)) {
     try {
-      console.log('🔍 DEBUG joinRoom - currentUser:', currentUser);
-      console.log('🔍 DEBUG joinRoom - currentUser.id:', currentUser.id);
       let room = await api.getRoom(name)
       if (!room || !room.name) {
         room = await api.createRoom(name)
       }
-      console.log('🔍 DEBUG - Avant joinRoom API:', { name, userId: currentUser.id });
+      
       await api.joinRoom(name, currentUser.id)
-      console.log(`Rejoint la salle: ${name}`)
-
+      
       tabs.prepend(createRoomTab(room))
       main.append(createRoomWindow(room))
-      changeRoom(room.name)
+      await changeRoom(room.name)
+      
       for (const msg of room.messages || []) {
         addMessage(room.name, msg)
       }
@@ -122,20 +128,37 @@ async function joinRoom() {
   }
 }
 
+async function loadRoomUsers(roomName) {
+  try {
+    const roomUsers = await api.getRoomUsers(roomName);
+    displayUsers(roomUsers);
+  } catch (error) {
+    console.error('Erreur loadRoomUsers:', error);
+  }
+}
+
+function displayUsers(userList) {
+  users.innerHTML = '';
+  userList.forEach(userName => {
+    const userDiv = htmlToElem(`<div class="user">${DOMPurify.sanitize(userName)}</div>`);
+    users.appendChild(userDiv);
+  });
+}
+
 async function send() {
   if (!currentUser) return;
-
+  
   const roomName = document.querySelector('input[name="tab"]:checked').value;
   const room = await api.getRoom(roomName);
-
+  
   input.setAttribute('disabled', true)
-
+  
   await api.sendMessage({
     text: input.value,
     userId: currentUser.id,
     roomId: room.id
   })
-
+  
   input.removeAttribute('disabled')
   input.value = ''
   input.focus()
@@ -148,8 +171,9 @@ function addMessage(roomName, message) {
   messageDiv.scrollIntoView()
 }
 
-// Polling messages
 setInterval(async () => {
+  if (!currentRoom) return;
+  
   const windows = [...document.getElementsByClassName('window')]
   for (const window of windows) {
     const roomName = window.id
@@ -158,7 +182,8 @@ setInterval(async () => {
       addMessage(roomName, room.messages[i])
     }
   }
+  
+  await loadRoomUsers(currentRoom);
 }, 1000)
-
 
 init();

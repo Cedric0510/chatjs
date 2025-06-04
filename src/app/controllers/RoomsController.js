@@ -89,4 +89,50 @@ export default class RoomsController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    // Entrer room
+    static async enterRoom(req, res) {
+        try {
+            const { userName } = req.body;
+            const roomName = req.params.id;
+            
+            console.log(`${userName} entre dans ${roomName}`);
+            
+            global.roomPresence.addUserToRoom(userName, roomName);
+            
+            res.json({ message: 'User entered room' });
+        } catch (error) {
+            console.error('Erreur enterRoom:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // Sortie room
+    static async leaveRoom(req, res) {
+        try {
+            const { userName } = req.body;
+            
+            console.log(`${userName} quitte toutes les salles`);
+            
+            global.roomPresence.removeUserFromAllRooms(userName);
+            
+            res.json({ message: 'User left rooms' });
+        } catch (error) {
+            console.error('Erreur leaveRoom:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    // Liste user
+    static async getRoomUsers(req, res) {
+        try {
+            const roomName = req.params.id;
+            const users = global.roomPresence.getUsersInRoom(roomName);
+            
+            res.json(users);
+        } catch (error) {
+            console.error('Erreur getRoomUsers:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
 }

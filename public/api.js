@@ -30,10 +30,25 @@ class API {
     return await POST(`${this.url}/rooms`, { name })
   }
 
+  async joinRoom(roomName, userId) {
+    return await POST(`${this.url}/rooms/${roomName}/join`, { userId })
+  }
 
-  // async createUser(name) {
-  //   return await POST(`${this.url}/users`, { name })
-  // }
+  async enterRoom(roomName, userName) {
+    return await POST(`${this.url}/rooms/${roomName}/enter`, { userName })
+  }
+
+  async leaveRoom(userName) {
+    return await POST(`${this.url}/rooms/dummy/leave`, { userName })
+  }
+
+  async getRoomUsers(roomName) {
+    return await GET(`${this.url}/rooms/${roomName}/users`)
+  }
+
+  async loginOrCreateUser(name) {
+    return await POST(`${this.url}/users/login`, { name })
+  }
 
   async sendMessage(messageData) {
     return await POST(`${this.url}/messages`, messageData)
@@ -47,16 +62,7 @@ class API {
     return await GET(`${this.url}/users`)
   }
 
-    async joinRoom(roomName, userId) {
-    return await POST(`${this.url}/rooms/${roomName}/join`, { userId })
-  }
-
-    async getMyRooms(userId) {
+  async getMyRooms(userId) {
     return await GET(`${this.url}/users/${userId}/rooms`)
   }
-
-  async loginOrCreateUser(name) {
-  return await POST(`${this.url}/users/login`, { name })
-}
-
 }
