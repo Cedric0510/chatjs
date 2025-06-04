@@ -7,40 +7,45 @@ const tabs = document.getElementById('tabs')
 const main = document.getElementById('main')
 const input = document.getElementById('input')
 
-
 async function init() {
   try {
     const userName = prompt('Qui êtes vous ?')
     if (!userName) return;
     
-  
-    currentUser = await api.createUser(userName);
-    console.log('Utilisateur:', currentUser);
-
-    await loadExistingRooms();
+    console.log('DEBUG - userName saisi:', userName); 
+    
+    currentUser = await api.loginOrCreateUser(userName);
+    console.log('DEBUG - currentUser après API:', currentUser); 
+    
+    if (currentUser && currentUser.id) {
+      console.log('DEBUG - Chargement des salles pour user ID:', currentUser.id); 
+      await loadMyRooms();
+    } else {
+      console.log('ERROR - currentUser.id non défini'); 
+    }
   } catch (error) {
-    console.error('Erreur init:', error);
+    console.error('ERROR init:', error);
   }
 }
 
-async function loadExistingRooms() {
+async function loadMyRooms() {
   try {
-    const roomNames = await api.getRooms(); 
-    console.log('Salles existantes:', roomNames);
-    
+    const roomNames = await api.getMyRooms(currentUser.id);
+    console.log('Mes salles:', roomNames);
+
     for (const roomName of roomNames) {
       const room = await api.getRoom(roomName);
       if (room && !document.getElementById(roomName)) {
         tabs.append(createRoomTab(room));
         main.append(createRoomWindow(room));
-        
+
         for (const msg of room.messages || []) {
-          addMessage(roomName, msg);
+          addMessage(roomName, msg);4
         }
       }
     }
   } catch (error) {
-    console.error(' Erreur load rooms:', error);
+    console.error('Erreur load my rooms:', error);
   }
 }
 
@@ -67,7 +72,7 @@ function createRoomWindow(room, active = true) {
 }
 
 function createMessageDiv(message) {
-  const authorName = message.author?.name || message.author; 
+  const authorName = message.author?.name || message.author;
   return htmlToElem(`
     <div class="message ${authorName == currentUser?.name ? 'mine' : ''}">
       <div class="header">
@@ -86,35 +91,51 @@ function changeRoom(roomName) {
 }
 
 async function joinRoom() {
+  console.log('NOUVELLE FONCTION joinRoom() appelée !'); 
+  
+    if (!currentUser) {
+    alert('Veuillez attendre que la connexion soit terminée');
+    return;
+  }
   const name = prompt("Indiquez le nom de la salle")
   if (name && !document.getElementById(name)) {
-    let room = await api.getRoom(name)
-    if (!room || !room.name) {
-      room = await api.createRoom(name)
-    }
-    tabs.prepend(createRoomTab(room))
-    main.append(createRoomWindow(room))
-    changeRoom(room.name)
-    for (const msg of room.messages || []) {
-      addMessage(room.name, msg)
+    try {
+      console.log('🔍 DEBUG joinRoom - currentUser:', currentUser);
+      console.log('🔍 DEBUG joinRoom - currentUser.id:', currentUser.id);
+      let room = await api.getRoom(name)
+      if (!room || !room.name) {
+        room = await api.createRoom(name)
+      }
+      console.log('🔍 DEBUG - Avant joinRoom API:', { name, userId: currentUser.id });
+      await api.joinRoom(name, currentUser.id)
+      console.log(`Rejoint la salle: ${name}`)
+
+      tabs.prepend(createRoomTab(room))
+      main.append(createRoomWindow(room))
+      changeRoom(room.name)
+      for (const msg of room.messages || []) {
+        addMessage(room.name, msg)
+      }
+    } catch (error) {
+      console.error('Erreur joinRoom:', error)
     }
   }
 }
 
 async function send() {
   if (!currentUser) return;
-  
+
   const roomName = document.querySelector('input[name="tab"]:checked').value;
   const room = await api.getRoom(roomName);
-  
+
   input.setAttribute('disabled', true)
-  
+
   await api.sendMessage({
     text: input.value,
     userId: currentUser.id,
     roomId: room.id
   })
-  
+
   input.removeAttribute('disabled')
   input.value = ''
   input.focus()
@@ -127,7 +148,7 @@ function addMessage(roomName, message) {
   messageDiv.scrollIntoView()
 }
 
-
+// Polling messages
 setInterval(async () => {
   const windows = [...document.getElementsByClassName('window')]
   for (const window of windows) {

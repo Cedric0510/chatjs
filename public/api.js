@@ -31,9 +31,9 @@ class API {
   }
 
 
-  async createUser(name) {
-    return await POST(`${this.url}/users`, { name })
-  }
+  // async createUser(name) {
+  //   return await POST(`${this.url}/users`, { name })
+  // }
 
   async sendMessage(messageData) {
     return await POST(`${this.url}/messages`, messageData)
@@ -54,5 +54,9 @@ class API {
     async getMyRooms(userId) {
     return await GET(`${this.url}/users/${userId}/rooms`)
   }
+
+  async loginOrCreateUser(name) {
+  return await POST(`${this.url}/users/login`, { name })
+}
 
 }
