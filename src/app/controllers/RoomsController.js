@@ -1,4 +1,6 @@
 import Room from '../models/Room.js'; 
+import Message from '../models/Message.js';
+import User from '../models/User.js';
 
 export default class RoomsController {
     
@@ -23,13 +25,22 @@ export default class RoomsController {
 
     static async readOne(req, res) {
         try {
-            const room = await Room.findOne({ where: { name: req.params.id } }); 
+            const room = await Room.findOne({ 
+                where: { name: req.params.id },
+                include: [{
+                    model: Message,
+                    as: 'messages',
+                    include: [{ model: User, as: 'author' }] // avec auteurs
+                }]
+            });
+            
             if (!room) {
                 return res.status(404).json({ error: 'Room not found' });
             }
+            
             res.json({
                 name: room.name,
-                messages: [] 
+                messages: room.messages || []
             });
         } catch (error) {
             res.status(500).json({ error: error.message });
