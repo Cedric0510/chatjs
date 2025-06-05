@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Room from '../models/Room.js';
+import { hashPassword, verifyPassword } from '../utils/auth.js';
 
 export default class UserController {
     
@@ -8,60 +9,68 @@ export default class UserController {
             const users = await User.findAll();
             res.json(users);
         } catch (error) {
+            console.error('Erreur UserController.getAll:', error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
     static async getById(req, res) {
         try {
-            const user = await User.findByPk(req.params.id); 
+            const user = await User.findByPk(req.params.id);
             if (!user) {
                 return res.status(404).json({ error: 'User not found' });
             }
             res.json(user);
         } catch (error) {
+            console.error('Erreur UserController.getById:', error.message);
             res.status(500).json({ error: error.message });
         }
     }
 
-    // static async create(req, res) {
-    //     try {
-    //         const { name } = req.body;
-    //         const user = await User.create({ name });
-    //         console.log(` Nouvel utilisateur: ${name}`);
-    //         res.json(user);
-    //     } catch (error) {
-    //         res.status(500).json({ error: error.message });
-    //     }
-    // }
-
-    static async delete(req, res) {
+    static async register(req, res) {
         try {
-            await User.destroy({ where: { id: req.params.id } });
-            res.json({ message: 'User deleted' });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
-
-    static async loginOrCreate(req, res) {
-        try {
-            const { name } = req.body;
-            console.log('DEBUG - Tentative login/create pour:', name);
+            const { name, password } = req.body;
             
-            let user = await User.findOne({ where: { name } });
-            
-            if (user) {
-                console.log('LOGIN - Utilisateur trouvé:', user.name);
-                res.json(user);
-            } else {
-                user = await User.create({ name });
-                console.log('CREATE - Nouvel utilisateur:', user.name);
-                res.json(user);
+            const existingUser = await User.findOne({ where: { name } });
+            if (existingUser) {
+                return res.status(400).json({ error: 'Utilisateur déjà existant' });
             }
             
+            const hashedPassword = await hashPassword(password);
+            
+            const user = await User.create({ 
+                name, 
+                password: hashedPassword 
+            });
+            
+            console.log('Nouvel utilisateur créé:', user.name);
+            res.json({ id: user.id, name: user.name });
+            
         } catch (error) {
-            console.error('ERROR UserController.loginOrCreate:', error.message);
+            console.error('Erreur UserController.register:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async login(req, res) {
+        try {
+            const { name, password } = req.body;
+            
+            const user = await User.findOne({ where: { name } });
+            if (!user) {
+                return res.status(404).json({ error: 'Compte inexistant, inscrivez-vous' });
+            }
+            
+            const isValid = await verifyPassword(password, user.password);
+            if (!isValid) {
+                return res.status(401).json({ error: 'Mauvais mot de passe' });
+            }
+            
+            console.log('Utilisateur connecté:', user.name);
+            res.json({ id: user.id, name: user.name });
+            
+        } catch (error) {
+            console.error('Erreur UserController.login:', error.message);
             res.status(500).json({ error: error.message });
         }
     }
@@ -86,7 +95,17 @@ export default class UserController {
             res.json(roomNames);
             
         } catch (error) {
-            console.error('ERROR UserController.getMyRooms:', error.message);
+            console.error('Erreur UserController.getMyRooms:', error.message);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async delete(req, res) {
+        try {
+            await User.destroy({ where: { id: req.params.id } });
+            res.json({ message: 'User deleted' });
+        } catch (error) {
+            console.error('Erreur UserController.delete:', error.message);
             res.status(500).json({ error: error.message });
         }
     }

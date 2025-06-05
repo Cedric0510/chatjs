@@ -1,28 +1,73 @@
 const api = new API('/api')
 
 let currentUser = null;
-let currentRoom = null; // Nouvelle variable
+let currentRoom = null;
 
 const title = document.getElementById('title')
 const tabs = document.getElementById('tabs')
 const main = document.getElementById('main')
 const input = document.getElementById('input')
-const users = document.getElementById('users') 
+const users = document.getElementById('users')
+const authModal = document.getElementById('auth-modal')
+const authForm = document.getElementById('auth-form')
+const authTitle = document.getElementById('auth-title')
+const authSubmit = document.getElementById('auth-submit')
+const authError = document.getElementById('auth-error')
+const authName = document.getElementById('auth-name')
+const authPassword = document.getElementById('auth-password')
 
-async function init() {
+
+function toggleAuthMode() {
+  const mode = document.querySelector('input[name="auth-mode"]:checked').value;
+  
+  if (mode === 'login') {
+    authTitle.textContent = 'Connexion';
+    authSubmit.textContent = 'Se connecter';
+  } else {
+    authTitle.textContent = 'Inscription';
+    authSubmit.textContent = "S'inscrire";
+  }
+  
+  authError.textContent = '';
+}
+
+// FORM
+authForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const mode = document.querySelector('input[name="auth-mode"]:checked').value;
+  const name = authName.value.trim();
+  const password = authPassword.value;
+  
+  if (!name || !password) {
+    authError.textContent = 'Veuillez remplir tous les champs';
+    return;
+  }
+  
   try {
-    const userName = prompt('Qui êtes vous ?')
-    if (!userName) return;
-    
-    currentUser = await api.loginOrCreateUser(userName);
-    console.log('Utilisateur connecté:', currentUser);
+    if (mode === 'register') {
+      currentUser = await api.registerUser(name, password);
+    } else {
+      currentUser = await api.loginUser(name, password);
+    }
     
     if (currentUser && currentUser.id) {
+      console.log('Utilisateur authentifié:', currentUser);
+      authModal.style.display = 'none';
       await loadMyRooms();
+    } else {
+      authError.textContent = currentUser.error || 'Erreur inconnue';
     }
+    
   } catch (error) {
-    console.error('Erreur init:', error);
+    console.error('Erreur auth:', error);
+    authError.textContent = 'Erreur de connexion';
   }
+});
+
+
+async function init() {
+  authModal.style.display = 'flex';
 }
 
 async function loadMyRooms() {

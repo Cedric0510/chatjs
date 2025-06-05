@@ -46,8 +46,12 @@ class API {
     return await GET(`${this.url}/rooms/${roomName}/users`)
   }
 
-  async loginOrCreateUser(name) {
-    return await POST(`${this.url}/users/login`, { name })
+  async registerUser(name, password) {
+    return await POST(`${this.url}/users/register`, { name, password })
+  }
+
+  async loginUser(name, password) {
+    return await POST(`${this.url}/users/login`, { name, password })
   }
 
   async sendMessage(messageData) {
