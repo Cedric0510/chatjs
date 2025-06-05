@@ -8,12 +8,12 @@
     "dev": "nodemon --env-file=.env.dev src/index.js",
     "start": "node --env-file=.env.prod src/index.ts"
   },
-  "author": "Florent Descroix",
+  "author": "Florent Descroix et Cedric Vanhove",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^16.4.7",
-    "express": "^4.18.2",
+    "express": "^5.1.0",
     "sequelize": "^6.37.7",
     "sqlite3": "^5.1.7"
   },
