@@ -274,7 +274,120 @@ footer button:hover {
   background-color: #2980b9;
 }
 
-/* Responsive design */
+/* Modal auth*/
+.modal {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(44, 62, 80, 0.8); 
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 350px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.auth-toggle {
+  margin: 20px 0;
+  display: flex;
+  justify-content: space-around;
+  background-color: #f0f2f5;
+  border-radius: 6px;
+  padding: 5px;
+}
+
+.auth-toggle label {
+  flex: 1;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.auth-toggle label:hover {
+  background-color: #e9ecef;
+}
+
+.auth-toggle label:has(input:checked) {
+  background-color: #3498db;
+  color: #ffffff;
+}
+
+.auth-toggle input {
+  display: none;
+}
+
+#auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#auth-form input[type="text"],
+#auth-form input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+#auth-form input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+#auth-submit {
+  padding: 12px;
+  background-color: #3498db;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+#auth-submit:hover {
+  background-color: #2980b9;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  min-height: 20px;
+  padding: 5px;
+  background-color: #fdf2f2;
+  border-radius: 4px;
+  border: 1px solid #fecaca;
+}
+
+.error-message:empty {
+  background: none;
+  border: none;
+}
+
+/* Responsive */
 @media (max-width: 900px) {
   body {
     grid-template-areas:
@@ -296,5 +409,11 @@ footer button:hover {
 
   footer {
     padding: 10px;
+  }
+
+  .modal-content {
+    width: 90%;
+    max-width: 350px;
+    margin: 20px;
   }
 }

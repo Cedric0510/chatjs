@@ -3,16 +3,38 @@
 
 <head>
   <script src="api.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
   <link rel="stylesheet" href="style.css">
-  </link>
 </head>
 
 <body>
-
-  <header>
+    <header>
     <h3 id="title"></h3>
   </header>
+
+  <div id="auth-modal" class="modal">
+    <div class="modal-content">
+      <h2 id="auth-title">Connexion</h2>
+      
+      <div class="auth-toggle">
+        <label>
+          <input type="radio" name="auth-mode" value="login" checked onchange="toggleAuthMode()"> Connexion
+        </label>
+        <label>
+          <input type="radio" name="auth-mode" value="register" onchange="toggleAuthMode()"> Inscription
+        </label>
+      </div>
+      
+      <form id="auth-form">
+        <input type="text" id="auth-name" placeholder="Nom d'utilisateur" required>
+        <input type="password" id="auth-password" placeholder="Mot de passe" required>
+        <div id="auth-error" class="error-message"></div>
+        <button type="submit" id="auth-submit">Se connecter</button>
+      </form>
+    </div>
+  </div>
+
+
 
   <aside id="left">
     <h3>Salons</h3>
@@ -21,17 +43,15 @@
   </aside>
 
   <aside id="right">
-    <h3>Utilisateur·ices</h3>
+    <h3>Utilisateur-ices</h3>
     <div id="users"></div>
   </aside>
 
   <main id="main"></main>
 
   <footer id="footer">
-    <button id="bigger" onclick="this.parentElement.classList.toggle('big')"></button>
-    <textarea id="input" onkeydown="if (event.code == 'Enter') send()"></textarea>
-    <button onclick="send()">Envoyer</button>
   </footer>
+
 </body>
 
 <script src="app.js"></script>
