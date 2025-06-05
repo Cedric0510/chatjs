@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../../config/database.js';
 
-const Room = sequelize.define('Room', { //création de la table
+const Room = sequelize.define('Room', { 
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

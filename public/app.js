@@ -1,7 +1,7 @@
 const api = new API('/api')
 
 let currentUser = null;
-let currentRoom = null; // Nouvelle variable
+let currentRoom = null; 
 
 const title = document.getElementById('title')
 const tabs = document.getElementById('tabs')
