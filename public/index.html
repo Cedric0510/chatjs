@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <header>
+  <header>
     <h3 id="title"></h3>
   </header>
 
@@ -34,8 +34,6 @@
     </div>
   </div>
 
-
-
   <aside id="left">
     <h3>Salons</h3>
     <div id="tabs"></div>
@@ -49,7 +47,10 @@
 
   <main id="main"></main>
 
+  <!-- NOUVEAU : Zone de saisie des messages -->
   <footer id="footer">
+    <input type="text" id="input" placeholder="Tapez votre message..." onkeydown="if(event.key==='Enter') send()">
+    <button onclick="send()">Envoyer</button>
   </footer>
 
 </body>

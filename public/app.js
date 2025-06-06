@@ -2,6 +2,7 @@ const api = new API('/api')
 
 let currentUser = null;
 let currentRoom = null;
+let eventSource = null;
 
 const title = document.getElementById('title')
 const tabs = document.getElementById('tabs')
@@ -19,7 +20,7 @@ const authPassword = document.getElementById('auth-password')
 
 function toggleAuthMode() {
   const mode = document.querySelector('input[name="auth-mode"]:checked').value;
-  
+
   if (mode === 'login') {
     authTitle.textContent = 'Connexion';
     authSubmit.textContent = 'Se connecter';
@@ -27,38 +28,41 @@ function toggleAuthMode() {
     authTitle.textContent = 'Inscription';
     authSubmit.textContent = "S'inscrire";
   }
-  
+
   authError.textContent = '';
 }
 
 // FORM
 authForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  
+
   const mode = document.querySelector('input[name="auth-mode"]:checked').value;
   const name = authName.value.trim();
   const password = authPassword.value;
-  
+
   if (!name || !password) {
     authError.textContent = 'Veuillez remplir tous les champs';
     return;
   }
-  
+
   try {
     if (mode === 'register') {
       currentUser = await api.registerUser(name, password);
     } else {
       currentUser = await api.loginUser(name, password);
     }
-    
+
     if (currentUser && currentUser.id) {
       console.log('Utilisateur authentifié:', currentUser);
       authModal.style.display = 'none';
+      
+      connectSSE();
+
       await loadMyRooms();
     } else {
       authError.textContent = currentUser.error || 'Erreur inconnue';
     }
-    
+
   } catch (error) {
     console.error('Erreur auth:', error);
     authError.textContent = 'Erreur de connexion';
@@ -75,21 +79,21 @@ async function loadMyRooms() {
     if (!currentUser || !currentUser.id) {
       return;
     }
-    
+
     const roomNames = await api.getMyRooms(currentUser.id);
-    
+
     for (const roomName of roomNames) {
       const room = await api.getRoom(roomName);
       if (room && !document.getElementById(roomName)) {
         tabs.append(createRoomTab(room));
         main.append(createRoomWindow(room));
-        
+
         for (const msg of room.messages || []) {
           addMessage(roomName, msg);
         }
       }
     }
-    
+
     if (roomNames.length > 0) {
       await changeRoom(roomNames[0]);
     }
@@ -138,12 +142,12 @@ async function changeRoom(roomName) {
   try {
     document.getElementById(`${roomName}_input`).checked = true
     title.innerText = roomName
-    
+
     await api.enterRoom(roomName, currentUser.name);
     currentRoom = roomName;
-    
+
     await loadRoomUsers(roomName);
-    
+
   } catch (error) {
     console.error('Erreur changeRoom:', error);
   }
@@ -157,13 +161,13 @@ async function joinRoom() {
       if (!room || !room.name) {
         room = await api.createRoom(name)
       }
-      
+
       await api.joinRoom(name, currentUser.id)
-      
+
       tabs.prepend(createRoomTab(room))
       main.append(createRoomWindow(room))
       await changeRoom(room.name)
-      
+
       for (const msg of room.messages || []) {
         addMessage(room.name, msg)
       }
@@ -192,18 +196,18 @@ function displayUsers(userList) {
 
 async function send() {
   if (!currentUser) return;
-  
+
   const roomName = document.querySelector('input[name="tab"]:checked').value;
   const room = await api.getRoom(roomName);
-  
+
   input.setAttribute('disabled', true)
-  
+
   await api.sendMessage({
     text: input.value,
     userId: currentUser.id,
     roomId: room.id
   })
-  
+
   input.removeAttribute('disabled')
   input.value = ''
   input.focus()
@@ -217,18 +221,61 @@ function addMessage(roomName, message) {
 }
 
 setInterval(async () => {
-  if (!currentRoom) return;
-  
-  const windows = [...document.getElementsByClassName('window')]
-  for (const window of windows) {
-    const roomName = window.id
-    const room = await api.getRoom(roomName)
-    for (let i = window.childElementCount - 1; i < (room.messages?.length || 0); i++) {
-      addMessage(roomName, room.messages[i])
-    }
+  if (!currentRoom);{
+
+
+    // Suppression du setinterval pour les messages
+    
+  // const windows = [...document.getElementsByClassName('window')]
+  // for (const window of windows) {
+  //   const roomName = window.id
+  //   const room = await api.getRoom(roomName)
+  //   for (let i = window.childElementCount - 1; i < (room.messages?.length || 0); i++) {
+  //     addMessage(roomName, room.messages[i])
+    // }
+    await loadRoomUsers(currentRoom);
   }
+
   
-  await loadRoomUsers(currentRoom);
-}, 1000)
+}, 5000);
+
+
+function connectSSE() {
+  if (eventSource) {
+    eventSource.close();
+  }
+
+  console.log('Connexion au flux SSE...');
+  eventSource = new EventSource('/api/events');
+
+  eventSource.onopen = () => {
+    console.log('SSE connecté');
+  };
+
+  eventSource.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      console.log('SSE reçu:', data);
+
+      if (data.type === 'connected') {
+        console.log('Client SSE connecté avec ID:', data.clientId);
+      } else if (data.type === 'newMessage') {
+        handleNewMessage(data.data);
+      }
+    } catch (error) {
+      console.log('Erreur parsing SSE:', error);
+    }
+  };
+
+  eventSource.onerror = (error) => {
+    console.log('Erreur SSE:', error);
+  };
+}
+
+function handleNewMessage(messageData) {
+  console.log('Nouveau message reçu:', messageData);
+
+  addMessage(messageData.room.name, messageData);
+}
 
 init();

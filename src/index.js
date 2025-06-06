@@ -8,20 +8,15 @@ import { setupAssociations } from './app/models/associations.js';
 
 const app = express();
 
-// NOUVEAU : Gestion de présence en mémoire
 const roomPresence = {};
-// Format : { "bob": ["cedric", "emile"], "test": ["pierre"] }
 
-// NOUVELLES FONCTIONS pour gérer la présence
 function addUserToRoom(userName, roomName) {
   if (!roomPresence[roomName]) {
     roomPresence[roomName] = [];
   }
   
-  // Retirer l'utilisateur de toutes les autres salles
   removeUserFromAllRooms(userName);
   
-  // Ajouter à la nouvelle salle (si pas déjà présent)
   if (!roomPresence[roomName].includes(userName)) {
     roomPresence[roomName].push(userName);
     console.log(`${userName} est maintenant dans ${roomName}`);
@@ -43,7 +38,6 @@ function getUsersInRoom(roomName) {
   return roomPresence[roomName] || [];
 }
 
-// Rendre les fonctions accessibles globalement
 global.roomPresence = {
   addUserToRoom,
   removeUserFromAllRooms,
